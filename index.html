@@ -123,10 +123,10 @@ async function send() {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
-            name: name.value,
-            surname: surname.value,
-            area: area.value,
-            email: email.value
+            name: document.getElementById("name").value,
+            surname: document.getElementById("surname").value,
+            area: document.getElementById("area").value,
+            email: document.getElementById("email").value
         })
     });
 

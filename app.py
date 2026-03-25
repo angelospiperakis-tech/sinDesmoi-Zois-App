@@ -72,9 +72,11 @@ def send_email(to_email, code, name):
 
 # ------------------ ROUTES ------------------
 
+from flask import send_file
+
 @app.route("/")
 def home():
-    return send_from_directory(".", "index.html")
+    return send_file("index.html")
 
 @app.route("/create", methods=["POST"])
 def create():

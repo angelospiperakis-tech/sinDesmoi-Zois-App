@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ΣύνΔεσμοί Ζωής</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: linear-gradient(to right, #4facfe, #00f2fe);
+    margin:0;
+    padding:20px;
+    text-align:center;
+}
+
+.container {
+    background:white;
+    padding:25px;
+    border-radius:15px;
+    width:320px;
+    margin:auto;
+    box-shadow:0 10px 30px rgba(0,0,0,0.2);
+}
+
+h1 {
+    margin-bottom:5px;
+}
+
+.subtitle {
+    color:gray;
+    margin-bottom:15px;
+}
+
+input, select {
+    width:90%;
+    padding:10px;
+    margin:6px;
+    border-radius:8px;
+    border:1px solid #ccc;
+}
+
+button {
+    width:95%;
+    padding:12px;
+    background:#4facfe;
+    color:white;
+    border:none;
+    border-radius:10px;
+    font-size:16px;
+    cursor:pointer;
+}
+
+button:hover {
+    background:#00c6ff;
+}
+
+#result {
+    margin-top:10px;
+    font-weight:bold;
+    color:green;
+}
+
+table {
+    margin-top:20px;
+    width:90%;
+    margin-left:auto;
+    margin-right:auto;
+    background:white;
+    border-collapse:collapse;
+    border-radius:10px;
+    overflow:hidden;
+    box-shadow:0 5px 15px rgba(0,0,0,0.2);
+}
+
+th {
+    background:#4facfe;
+    color:white;
+}
+
+th, td {
+    padding:10px;
+}
+
+tr:nth-child(even) {
+    background:#f2f2f2;
+}
+
+.delete-btn {
+    background:red;
+    border:none;
+    color:white;
+    padding:5px 10px;
+    border-radius:5px;
+    cursor:pointer;
+}
+
+.delete-btn:hover {
+    background:darkred;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>ΣύνΔεσμοί Ζωής</h1>
+<p class="subtitle">Ειδικός Κωδικός Πελάτη</p>
+
+<input id="name" placeholder="Όνομα">
+<input id="surname" placeholder="Επώνυμο">
+
+<select id="area">
+<option value="">Επιλογή Περιοχής</option>
+<option value="ΠΕΤΡ">Πετρούπολη</option>
+<option value="ΠΛΠΕ">Πλατεία Πετρούπολης</option>
+<option value="ΚΗΠΟ">Κηπούπολη</option>
+<option value="ΙΛΙΟ">Ίλιον</option>
+</select>
+
+<input id="email" placeholder="Email">
+
+<button id="btn">Δημιουργία Κωδικού</button>
+
+<p id="result"></p>
+
+</div>
+
+<h2>Πελάτες</h2>
+
+<table id="table">
+<tr>
+<th>Όνομα</th>
+<th>Επώνυμο</th>
+<th>Περιοχή</th>
+<th>Κωδικός</th>
+<th>Διαγραφή</th>
+</tr>
+</table>
+
+<script>
+
+document.getElementById("btn").addEventListener("click", async () => {
+
+    const res = await fetch("/create", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({
+            name: document.getElementById("name").value,
+            surname: document.getElementById("surname").value,
+            area: document.getElementById("area").value,
+            email: document.getElementById("email").value
+        })
+    });
+
+    const data = await res.json();
+
+    document.getElementById("result").innerText = "Κωδικός: " + data.code;
+
+    load();
+});
+
+async function load(){
+    const res = await fetch("/clients");
+    const data = await res.json();
+
+    let html = `
+    <tr>
+    <th>Όνομα</th>
+    <th>Επώνυμο</th>
+    <th>Περιοχή</th>
+    <th>Κωδικός</th>
+    <th>Διαγραφή</th>
+    </tr>`;
+
+    data.forEach(c=>{
+        html += `
+        <tr>
+            <td>${c.name}</td>
+            <td>${c.surname}</td>
+            <td>${c.area}</td>
+            <td>${c.code}</td>
+            <td><button class="delete-btn" onclick="del(${c.id})">❌</button></td>
+        </tr>`;
+    });
+
+    document.getElementById("table").innerHTML = html;
+}
+
+async function del(id){
+    if(!confirm("Σίγουρα θέλεις διαγραφή;")) return;
+
+    await fetch("/delete/"+id,{method:"DELETE"});
+    load();
+}
+
+load();
+
+</script>
+
+</body>
+</html>
